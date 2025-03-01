@@ -4,25 +4,38 @@
 <head>
     <%- include('./partials/head') %>
     <title>Homepage</title>
-
 </head>
+
 <body>
     <%- include('./partials/nav') %>
-    <div class=""container mt-3>
+    
+    <div class="container mt-3">
         <div class="row row-cols-3">
-        <% blogs.forEach(blog=>{%>
-            <div class="card" style="width: 18rem;">
-                <div class="col">
-                <img src="<%=blog.coverImageURL%>" class="card-img-top" width="300px" height="200px">
-                <div class="card-body">
-                  <h5 class="card-title"><%=blog.title %></h5>
-                  
-                  <a href="/blog/<%=blog._id %>" class="btn btn-primary">View</a>
+            <% blogs.forEach(blog => { %>
+                <div class="card" style="width: 18rem;">
+                    <div class="col">
+                        <!-- Blog Cover Image (Cloudinary or Default) -->
+                        <img src="<%= blog.coverImageURL ? blog.coverImageURL : '/images/default-thumbnail.png' %>" 
+                             class="card-img-top" width="300px" height="200px" alt="Blog Image">
+                        
+                        <div class="card-body">
+                            <h5 class="card-title"><%= blog.title %></h5>
+
+                            <!-- User Profile Image and Name -->
+                            <div class="d-flex align-items-center">
+                                <img src="<%= blog.createdBy.profileImageUrl ? blog.createdBy.profileImageUrl : '/images/default.png' %>" 
+             width="30px" height="30px" class="rounded-circle" alt="User Profile">
+                                <span class="ms-2"><%= blog.createdBy.fullName %></span>
+                            </div>
+
+                            <a href="/blog/<%= blog._id %>" class="btn btn-primary mt-2">View</a>
+                        </div>
+                    </div>
                 </div>
-                </div>
-              </div>
-        <%})%>
+            <% }) %>
+        </div>
     </div>
-   <%- include('./partials/scripts') %>
+
+    <%- include('./partials/scripts') %>
 </body>
 </html>

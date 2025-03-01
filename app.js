@@ -1,41 +1,43 @@
-require("dotenv").config()
-const path=require("path")
-const express=require("express")
-const userRoute=require("./routes/user")
-const blogRoute=require("./routes/blog")
-const cookieParser=require('cookie-parser')
+require("dotenv").config();
+const path = require("path");
+const express = require("express");
+const userRoute = require("./routes/user");
+const blogRoute = require("./routes/blog");
+const cookieParser = require("cookie-parser");
 
-const Blog=require("./models/blog")
+const Blog = require("./models/blog");
+const mongoose = require("mongoose");
+const { checkForAuthenticationCookie } = require("./middlewares/authentication");
 
+const app = express();
+const PORT = process.env.PORT || 8000;
 
+mongoose.connect(process.env.MONGO_URL).then(() => console.log("MongoDB connected"));
 
-const app=express()
+app.set("view engine", "ejs");
+app.set("views", path.resolve("./views"));
 
-const PORT=process.env.PORT || 8000
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(checkForAuthenticationCookie("token")); 
 
-const mongoose=require("mongoose")
-const { checkForAuthenticationCookie } = require("./middlewares/authentication")
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    
+    next();
+});
 
-mongoose.connect(process.env.MONGO_URL).then((e)=>console.log("MongoDB connected"))
+app.use(express.static(path.resolve("./public")));
 
-app.set("view engine","ejs")
-app.set("views",path.resolve("./views"))
+app.get("/", async (req, res) => {
+    const allBlogs = await Blog.find({});
+    return res.render("home", {
+        user: req.user,
+        blogs: allBlogs
+    });
+});
 
-app.use(express.urlencoded({extended:false}))
-app.use(cookieParser())
-app.use(checkForAuthenticationCookie("token"))
-app.use(express.static(path.resolve('./public')))
-app.get("/",async(req,res)=>{
-    const allBlogs=await Blog.find({})
-    return res.render("home",{
-        user:req.user,
-        blogs:allBlogs
-    })
-})
+app.use("/user", userRoute);
+app.use("/blog", blogRoute);
 
-app.use("/user",userRoute)
-app.use("/blog",blogRoute)
-
-
-app.listen(PORT,()=> console.log(`Server Started at PORT: ${PORT}`))
-
+app.listen(PORT, () => console.log(`Server Started at PORT: ${PORT}`));

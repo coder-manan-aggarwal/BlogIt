@@ -1,24 +1,23 @@
-const jwt=require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
-const secret="IronM@nTonYStarK"
+const secret = "IronM@nTonYStarK";
 
-function createTokenForUser(user){
-    const payload={
-        _id:user._id,
-        email:user.email,
-        profileImageURl: user.profileImageURl,
-        role:user.role,
+function createTokenForUser(user) {
+    const payload = {
+        username: user.fullName,
+        _id: user._id,
+        email: user.email,
+        profileImageUrl: user.profileImageUrl,
+        role: user.role,
     };
-    const token=jwt.sign(payload,secret)
-    return token
+    return jwt.sign(payload, secret);
 }
 
-function validateToken(token){
-    const payload=jwt.verify(token,secret)
-    return payload
+function validateToken(token) {
+    return jwt.verify(token, secret);
 }
 
-module.exports={
+module.exports = {
     createTokenForUser,
     validateToken
-}
+};
